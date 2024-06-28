@@ -138,7 +138,7 @@ namespace iAndon.Biz.Logic
                 _Logger.Write(_LogCategory, $"iAndon Biz Service is Starting!", LogType.Info);
 
                 InitData();
-                StartGetMessage();
+                //StartGetMessage();
                 _TimerProccessQueue.Interval = _QueueInterval;
                 _TimerProccessQueue.Elapsed += _TimerProccessQueue_Elapsed;
                 _TimerProccessQueue.Start();
@@ -870,11 +870,14 @@ namespace iAndon.Biz.Logic
             try
             {
                 //PreProcessMessage();
+                _Logger.Write(_LogCategory, $"Message {JsonConvert.SerializeObject(message)}", LogType.Debug);
 
                 //Chỗ này check hơi hài nhưng không hiểu sao lại bị lỗi
                 if (message == null) return;
 
+                _Logger.Write(_LogCategory, $"Gateway: {message.Header.From}", LogType.Debug);
                 Line line = _Lines.FirstOrDefault(l => l.GATEWAY_ID == message.Header.From);
+                _Logger.Write(_LogCategory, $"Line match with Gateway: {line.LINE_ID}", LogType.Debug);
                 //Kiểm tra các điều kiện thỏa mãn cho chạy
                 if (line == null) return;
                 if (line.WorkPlan == null) return;
@@ -882,7 +885,7 @@ namespace iAndon.Biz.Logic
 
                 DateTime eventTime = DateTime.Now;
 
-                _Logger.Write(_LogCategory, $"Message {JsonConvert.SerializeObject(message)} in Line {line.LINE_CODE}", LogType.Debug);
+                //_Logger.Write(_LogCategory, $"Message {JsonConvert.SerializeObject(message)} in Line {line.LINE_CODE}", LogType.Debug);
 
                 DateTime minTime = line.WorkPlan.PlanStart;
 
@@ -893,6 +896,8 @@ namespace iAndon.Biz.Logic
 
                 string _deviceId = message.Body.DeviceId;
                 Node _node = line.Nodes.FirstOrDefault(x => x.DEVICE_ID == _deviceId);
+                _Logger.Write(_LogCategory, $"Node: {JsonConvert.SerializeObject(_node)} - Device: {_deviceId}", LogType.Debug);
+
                 if (_node == null) return;
 
                 foreach (DM_MES_EVENTDEF eventDef in _EventDefs)
@@ -910,6 +915,7 @@ namespace iAndon.Biz.Logic
                     bool test = Convert.ToBoolean(dataTable.Compute(formula, ""));
                     if (test)
                     {
+                        _Logger.Write(_LogCategory, $"Test Node Event for {_node.NODE_ID}: Event {eventDef.EVENTDEF_ID}", LogType.Debug);
                         ChangeNodeEvent(line.LINE_ID, _node.NODE_ID, msgTime, eventDef.EVENTDEF_ID);
                     }
                 }
@@ -1015,6 +1021,7 @@ namespace iAndon.Biz.Logic
                     _Logger.Write(_LogCategory, $"Start Sync PMS for Line {line.LINE_CODE}", LogType.Debug);
 
                     PMSData linePMS = GetPMSInfo(line.LINE_CODE);
+                    if (linePMS == null) return;
                     //Xử lý dữ liệu PMS tại đây ???
                     if (linePMS != null)
                     {
@@ -1133,7 +1140,7 @@ namespace iAndon.Biz.Logic
         }
         private PMSData GetPMSInfo(string CODE)
         {
-            /*
+            
             PMSData result = null;
             try
             {
@@ -1167,9 +1174,11 @@ namespace iAndon.Biz.Logic
             catch (Exception ex)
             {
                 _Logger.Write(_LogCategory, $"Proccess Sync Call PMS line {CODE} Error: {ex}", LogType.Error);
+                return null;
             }
             return result;
-            */
+            
+            /*
             PMSData result = null;
 
             using (Entities _dbContext = new Entities())
@@ -1193,6 +1202,7 @@ namespace iAndon.Biz.Logic
                 }
             }
             return result;
+            */
         }
         private void StartRunningWorkPlan(string LineId, DateTime eventTime, bool isAutoAddWorkPlan = false)
         {
@@ -1473,6 +1483,10 @@ namespace iAndon.Biz.Logic
                     {
                         lineRunning.DURATION = lineEvents.Sum(x => x.TOTAL_DURATION);
                     }
+                    else
+                    {
+                        lineRunning.DURATION = 0;
+                    }
                     if ((lineRunning.EVENTDEF_ID != Consts.EVENTDEF_DEFAULT) && (lineRunning.EVENTDEF_ID != Consts.EVENTDEF_RUNNING) && (lineRunning.EVENTDEF_ID != Consts.EVENTDEF_BREAK) && (lineRunning.EVENTDEF_ID != Consts.EVENTDEF_NOPLAN))
                     {
                         _duration += lineRunning.DURATION;
@@ -1486,6 +1500,10 @@ namespace iAndon.Biz.Logic
                     {
                         lineStop.DURATION = lineEvents.Sum(x => x.TOTAL_DURATION);
                     }
+                    else
+                    {
+                        lineStop.DURATION = 0;
+                    }    
                 }
 
 
@@ -1576,7 +1594,8 @@ namespace iAndon.Biz.Logic
                 Line line = _Lines.FirstOrDefault(l => l.LINE_ID == LineId);
 
                 //Tính toán cho WorkPlan
-                //_Logger.Write(_LogCategory, $"Start calculate workplan factor for Line : {line.Name}", LogType.Debug);
+                
+                _Logger.Write(_LogCategory, $"Start calculate workplan factor for Line : {line.LINE_ID}", LogType.Debug);
 
                 foreach (MES_WORK_PLAN_DETAIL workPlanDetail in line.WorkPlan.WorkPlanDetails)
                 {
@@ -1594,11 +1613,13 @@ namespace iAndon.Biz.Logic
                 //Xử lý các thông số cho LINE
                 MES_REPORT_LINE reportLine = line.ReportLine;
 
+                _Logger.Write(_LogCategory, $"Calculate Report Detail to Run - Line : {line.LINE_ID}", LogType.Debug);
                 //Tính các thằng chi tiết
                 if (line.ReportLineDetails.Count > 0)
                 {
                     foreach (MES_REPORT_LINE_DETAIL detail in line.ReportLineDetails)
                     {
+                        _Logger.Write(_LogCategory, $"Calculate Report Detail: Process [{detail.WORK_PLAN_DETAIL_ID}] to Run - Line : {line.LINE_ID}", LogType.Debug);
                         if (detail.STATUS == (byte)PLAN_STATUS.NotStart)
                         {
                             if (detail.STARTED <= eventTime && detail.STATUS< (byte)PLAN_STATUS.Proccessing)
@@ -1690,6 +1711,7 @@ namespace iAndon.Biz.Logic
                 {
                     reportLine.FINISHED = (eventTime < reportLine.PLAN_FINISH) ? eventTime : reportLine.PLAN_FINISH;
                     #region ProcessEvent
+                    _Logger.Write(_LogCategory, $"Process Event - Total event: {line.LineEvents.Count} - Line : {line.LINE_ID}", LogType.Debug);
                     //Xử lý phần LineEvent
                     //Lấy thằng cuối cùng
                     MES_LINE_EVENT tblLineEvent = line.LineEvents.Last(x => !x.FINISH.HasValue);
@@ -1716,32 +1738,13 @@ namespace iAndon.Biz.Logic
                             //Nếu chưa có thằng nào chạy trong WorkPlan đó thì mới cho khởi động chạy thật
                             if (line.LineEvents.Count == 1 && line.EventDefId == Consts.EVENTDEF_NOPLAN)
                             {
+                                _Logger.Write(_LogCategory, $"Process Event - Start Running - Line : {line.LINE_ID}", LogType.Debug);
                                 _eventDefId = Consts.EVENTDEF_RUNNING;
                                 //Kết thúc thằng trước và thêm thằng mới.
                                 ChangeLineEvent(line.LINE_ID, (DateTime)reportLine.STARTED, _eventDefId);
                             }
-                            
-                            //Check for Node Stop
-                            bool testForNodeStop = false;
-                            foreach(Node node in line.Nodes)
-                            {
-                                MES_NODE_EVENT nodeEvent = node.NodeEvents.FirstOrDefault(x => !x.FINISH.HasValue);
-                                if (nodeEvent.EVENTDEF_ID == Consts.EVENTDEF_STOP)
-                                {
-                                    testForNodeStop = true;
-                                    break;
-                                }
-                            }
-                            if (testForNodeStop)
-                            {
-                                _eventDefId = Consts.EVENTDEF_STOP;
-                            }
-                            else
-                            {
-                                _eventDefId = Consts.EVENTDEF_RUNNING;
-                            }
-                            ChangeLineEvent(line.LINE_ID, eventTime, _eventDefId);
 
+                            _Logger.Write(_LogCategory, $"Process Event - Process BreakTime - Total [{line.BreakTimes.Count}] - Line : {line.LINE_ID}", LogType.Debug);
                             //Test for BreakTime
                             foreach (BreakTime breakTime in line.BreakTimes)
                             {
@@ -1770,12 +1773,41 @@ namespace iAndon.Biz.Logic
                                     }
                                 }
                             }
+
+                            if (line.EventDefId != Consts.EVENTDEF_BREAK)
+                            {
+                                _Logger.Write(_LogCategory, $"Process Event - Check for Stop - Line : {line.LINE_ID}", LogType.Debug);
+                                //Check for Node Stop
+                                bool testForNodeStop = false;
+                                foreach (Node node in line.Nodes)
+                                {
+                                    MES_NODE_EVENT nodeEvent = node.NodeEvents.FirstOrDefault(x => !x.FINISH.HasValue);
+                                    if (nodeEvent == null) continue;
+
+                                    if (nodeEvent.EVENTDEF_ID == Consts.EVENTDEF_STOP)
+                                    {
+                                        testForNodeStop = true;
+                                        break;
+                                    }
+                                }
+                                if (testForNodeStop)
+                                {
+                                    _eventDefId = Consts.EVENTDEF_STOP;
+                                }
+                                else
+                                {
+                                    _eventDefId = Consts.EVENTDEF_RUNNING;
+                                }
+                                _Logger.Write(_LogCategory, $"Process Event - Status is {_eventDefId} - Line : {line.LINE_ID}", LogType.Debug);
+                                ChangeLineEvent(line.LINE_ID, eventTime, _eventDefId);
+                            }
                         }
                     }
                     #endregion
 
                     //Tính toán cho ReportLine
                     #region Process ReportLine
+                    _Logger.Write(_LogCategory, $"Process Report Line - Line : {line.LINE_ID}", LogType.Debug);
                     //Tính toán thời lượng chạy/dừng
                     int _numberOfStop = 0;
                     decimal _breakDuration = 0;
@@ -1836,7 +1868,7 @@ namespace iAndon.Biz.Logic
             }
             catch (Exception ex)
             {
-                _Logger.Write(_LogCategory, $"Calculate Work Factor Error: {ex}", LogType.Error);
+                _Logger.Write(_LogCategory, $"Calculate Work Factor for Line {LineId} Error: {ex}", LogType.Error);
             }
 
         }
@@ -1948,7 +1980,7 @@ namespace iAndon.Biz.Logic
             return null;
 
         }
-        private MES_NODE_EVENT ChangeNodeEvent(string LineId, string NodeId, DateTime eventTime, string newEventDefId = "0")
+        private void ChangeNodeEvent(string LineId, string NodeId, DateTime eventTime, string newEventDefId = "0")
         {
             try
             {
@@ -1957,86 +1989,107 @@ namespace iAndon.Biz.Logic
 
                 DM_MES_EVENTDEF tblEventDef = _EventDefs.FirstOrDefault(x => x.EVENTDEF_ID == newEventDefId);
 
-                MES_NODE_EVENT oldEvent = node.NodeEvents.Last(x => !x.FINISH.HasValue);
-
-                _Logger.Write(_LogCategory, $"Process Add Event for Node {node.NODE_ID} - Current Event: {oldEvent.EVENTDEF_ID} - Time: {eventTime:yyyy-MM-dd HH:mm:ss}", LogType.Debug);
-
-                //Kết thúc cái cũ
-                oldEvent.FINISH = eventTime;
-                oldEvent.TOTAL_DURATION = (decimal)(eventTime - oldEvent.START).TotalSeconds;
-                oldEvent.WAIT_DURATION = 0;
-                oldEvent.FIX_DURATION = oldEvent.TOTAL_DURATION;
-
-                if (oldEvent.RESPONSE.HasValue)
+                string oldEventId = Consts.EVENTDEF_DEFAULT;
+                MES_NODE_EVENT oldEvent = null;
+                if (node.NodeEvents.Count > 0)
                 {
-                    oldEvent.WAIT_DURATION = (decimal)((DateTime)oldEvent.RESPONSE - oldEvent.START).TotalSeconds;
-                    oldEvent.FIX_DURATION = (decimal)((DateTime)oldEvent.FINISH - (DateTime)oldEvent.RESPONSE).TotalSeconds;
+                    oldEvent = node.NodeEvents.Last(x => !x.FINISH.HasValue);
+                    oldEventId = oldEvent.EVENTDEF_ID;
                 }
-                _Logger.Write(_LogCategory, $"Node {NodeId} - Finish Event {oldEvent.EVENT_ID} - {oldEvent.FINISH}", LogType.Debug);
 
-                //Thêm cái mới
-                if (newEventDefId != Consts.EVENTDEF_DEFAULT)
+                bool isFinishOldEvent = false, isAddNewEvent = false;
+                if (newEventDefId == Consts.EVENTDEF_DEFAULT)
                 {
-                    if (newEventDefId != oldEvent.EVENTDEF_ID)
+                    isFinishOldEvent = true;
+                }
+                else
+                {
+                    if (newEventDefId != oldEventId)
                     {
-                        _Logger.Write(_LogCategory, $"New Event at Node {NodeId} - Event: {line.EventDefId}", LogType.Debug);
-
-                        string _detailId = "", _productId = "", _productCode = "", _productName = "";
-
-                        List<MES_REPORT_LINE_DETAIL> details = line.ReportLineDetails.Where(x => x.STATUS == (byte)PLAN_STATUS.Proccessing).ToList();
-                        if (details.Count > 0)
-                        {
-                            foreach (MES_REPORT_LINE_DETAIL detail in details)
-                            {
-                                _detailId += detail.REPORT_LINE_DETAIL_ID + ",";
-                                _productId += detail.PRODUCT_ID + ",";
-                                _productCode += detail.PRODUCT_CODE + ",";
-                                _productName += detail.PRODUCT_NAME + ",";
-                            }
-                            _detailId = _detailId.Substring(0, _detailId.Length - 1);
-                            _productId = _productId.Substring(0, _productId.Length - 1);
-                            _productCode = _productCode.Substring(0, _productCode.Length - 1);
-                            _productName = _productName.Substring(0, _productName.Length - 1);
-                        }
-                        MES_NODE_EVENT nodeEvent = new MES_NODE_EVENT()
-                        {
-                            EVENT_ID = GenID(),
-                            NODE_ID = NodeId,
-                            NODE_CODE = node.NODE_NAME,
-                            NODE_NAME = node.NODE_NAME,
-                            EVENTDEF_ID = newEventDefId,
-                            EVENTDEF_NAME_EN = tblEventDef.EVENTDEF_NAME_EN,
-                            EVENTDEF_NAME_VN = tblEventDef.EVENTDEF_NAME_VN,
-                            EVENTDEF_COLOR = tblEventDef.EVENTDEF_COLOR,
-                            START = eventTime,
-                            //Reposne & Finish = NULL,
-                            WAIT_DURATION = 0,
-                            FIX_DURATION = 0,
-                            TOTAL_DURATION = 0,
-                            WORK_PLAN_ID = line.WorkPlan.WORK_PLAN_ID,
-                            SHIFT_ID = line.WorkPlan.SHIFT_ID,
-                            DAY = line.WorkPlan.DAY,
-                            REPORT_LINE_DETAIL_ID = _detailId,
-                            PRODUCT_ID = _productId,
-                            PRODUCT_CODE = _productCode,
-                            PRODUCT_NAME = _productName,
-
-                            REASON_ID = "0",
-                            RESPONSIBILITY_ID = "0",
-                            DESCRIPTION = ""
-                        };
-                        node.NodeEvents.Add(nodeEvent);
-                        return nodeEvent;
+                        isFinishOldEvent = true;
+                        isAddNewEvent = true;
                     }
                 }
-                return oldEvent;
+
+                if (isFinishOldEvent)
+                {
+                    if (oldEvent != null)
+                    {
+                        //Kết thúc cái cũ
+                        oldEvent.FINISH = eventTime;
+                        oldEvent.TOTAL_DURATION = (decimal)(eventTime - oldEvent.START).TotalSeconds;
+                        oldEvent.WAIT_DURATION = 0;
+                        oldEvent.FIX_DURATION = oldEvent.TOTAL_DURATION;
+
+                        if (oldEvent.RESPONSE.HasValue)
+                        {
+                            oldEvent.WAIT_DURATION = (decimal)((DateTime)oldEvent.RESPONSE - oldEvent.START).TotalSeconds;
+                            oldEvent.FIX_DURATION = (decimal)((DateTime)oldEvent.FINISH - (DateTime)oldEvent.RESPONSE).TotalSeconds;
+                        }
+                        _Logger.Write(_LogCategory, $"Node {NodeId} - Finish Event {oldEvent.EVENT_ID} - {oldEvent.FINISH}", LogType.Debug);
+                    }
+                }
+
+                if (isAddNewEvent)
+                {
+                    _Logger.Write(_LogCategory, $"Process Add Event for Node {node.NODE_ID} - Current Event: {oldEventId} - Time: {eventTime:yyyy-MM-dd HH:mm:ss}", LogType.Debug);
+
+                    //Thêm cái mới
+
+                    _Logger.Write(_LogCategory, $"New Event at Node {NodeId} - Event: {line.EventDefId}", LogType.Debug);
+
+                    string _detailId = "", _productId = "", _productCode = "", _productName = "";
+
+                    List<MES_REPORT_LINE_DETAIL> details = line.ReportLineDetails.Where(x => x.STATUS == (byte)PLAN_STATUS.Proccessing).ToList();
+                    if (details.Count > 0)
+                    {
+                        foreach (MES_REPORT_LINE_DETAIL detail in details)
+                        {
+                            _detailId += detail.REPORT_LINE_DETAIL_ID + ",";
+                            _productId += detail.PRODUCT_ID + ",";
+                            _productCode += detail.PRODUCT_CODE + ",";
+                            _productName += detail.PRODUCT_NAME + ",";
+                        }
+                        _detailId = _detailId.Substring(0, _detailId.Length - 1);
+                        _productId = _productId.Substring(0, _productId.Length - 1);
+                        _productCode = _productCode.Substring(0, _productCode.Length - 1);
+                        _productName = _productName.Substring(0, _productName.Length - 1);
+                    }
+                    MES_NODE_EVENT nodeEvent = new MES_NODE_EVENT()
+                    {
+                        EVENT_ID = GenID(),
+                        NODE_ID = NodeId,
+                        NODE_CODE = node.NODE_NAME,
+                        NODE_NAME = node.NODE_NAME,
+                        EVENTDEF_ID = newEventDefId,
+                        EVENTDEF_NAME_EN = tblEventDef.EVENTDEF_NAME_EN,
+                        EVENTDEF_NAME_VN = tblEventDef.EVENTDEF_NAME_VN,
+                        EVENTDEF_COLOR = tblEventDef.EVENTDEF_COLOR,
+                        START = eventTime,
+                        //Reposne & Finish = NULL,
+                        WAIT_DURATION = 0,
+                        FIX_DURATION = 0,
+                        TOTAL_DURATION = 0,
+                        WORK_PLAN_ID = line.WorkPlan.WORK_PLAN_ID,
+                        SHIFT_ID = line.WorkPlan.SHIFT_ID,
+                        DAY = line.WorkPlan.DAY,
+                        REPORT_LINE_DETAIL_ID = _detailId,
+                        PRODUCT_ID = _productId,
+                        PRODUCT_CODE = _productCode,
+                        PRODUCT_NAME = _productName,
+
+                        REASON_ID = "0",
+                        RESPONSIBILITY_ID = "0",
+                        DESCRIPTION = ""
+                    };
+                    node.NodeEvents.Add(nodeEvent);
+
+                }
             }
             catch (Exception ex)
             {
-                _Logger.Write(_LogCategory, $"Process Change LineEvent Error: {ex}", LogType.Error);
+                _Logger.Write(_LogCategory, $"Process Change Node Event Error: {ex}", LogType.Error);
             }
-            return null;
-
         }
 
         private string CalculateResult(double performance, DateTime _lastCount)
@@ -3169,7 +3222,7 @@ namespace iAndon.Biz.Logic
 
                             #region SaveReportLineDetail
 
-                            _Logger.Write(_LogCategory, $"Process Data: Start save report line detail: Total Detail: Line {line.LineEvents} - Total: {line.ReportLineDetails.Count}", LogType.Debug);
+                            _Logger.Write(_LogCategory, $"Process Data: Start save report line detail: Total Detail: Line {line.LINE_ID} - Total: {line.ReportLineDetails.Count}", LogType.Debug);
                             foreach (MES_REPORT_LINE_DETAIL reportLineDetail in line.ReportLineDetails)
                             {
                                 MES_REPORT_LINE_DETAIL detail = _dbContext.MES_REPORT_LINE_DETAIL.FirstOrDefault(l => l.REPORT_LINE_DETAIL_ID == reportLineDetail.REPORT_LINE_DETAIL_ID);
@@ -3273,6 +3326,52 @@ namespace iAndon.Biz.Logic
                                 }
                             }
 
+                            //Node Event
+                            foreach (Node node in line.Nodes)
+                            {
+                                foreach (MES_NODE_EVENT nodeEvent in node.NodeEvents)
+                                {
+                                    //tblLineEvent lineEvent = line.LineEvents.OrderBy(x => x.Start).Last(); //Bản tin sau chót
+                                    //tblLineEvent tblLineEvent = _dbContext.tblLineEvents.FirstOrDefault(x => x.Finish.HasValue && x.LineId == line.Id);
+
+                                    //Kiểm tra theo ID
+                                    MES_NODE_EVENT tblNodeEvent = _dbContext.MES_NODE_EVENT.FirstOrDefault(x => x.EVENT_ID == nodeEvent.EVENT_ID);
+                                    //Kiểm tra theo LineId, WorkPlan và EventDefId
+                                    //tblLineEvent tblLineEvent = _dbContext.tblLineEvents.FirstOrDefault(x => x.LineId == lineEvent.LineId && x.WorkPlanId == lineEvent.WorkPlanId && x.EventDefId == lineEvent.EventDefId && x.Start == lineEvent.Start);
+
+                                    if (tblNodeEvent == null)
+                                    {
+                                        _dbContext.MES_NODE_EVENT.Add(nodeEvent);
+                                    }
+                                    else
+                                    {
+                                        //Đang trong quá trình thực thi
+                                        //Thực thi
+                                        DateTime _finish = eventTime;
+                                        if (nodeEvent.FINISH.HasValue)
+                                        {
+                                            _finish = (DateTime)nodeEvent.FINISH;
+                                            tblNodeEvent.FINISH = nodeEvent.FINISH;
+                                        }
+
+                                        tblNodeEvent.EVENTDEF_ID = nodeEvent.EVENTDEF_ID;
+                                        tblNodeEvent.EVENTDEF_NAME_EN = nodeEvent.EVENTDEF_NAME_EN;
+                                        tblNodeEvent.EVENTDEF_NAME_VN = nodeEvent.EVENTDEF_NAME_VN;
+                                        tblNodeEvent.EVENTDEF_COLOR = nodeEvent.EVENTDEF_COLOR;
+
+                                        tblNodeEvent.REPORT_LINE_DETAIL_ID = nodeEvent.REPORT_LINE_DETAIL_ID;
+                                        tblNodeEvent.PRODUCT_ID = nodeEvent.PRODUCT_ID;
+                                        tblNodeEvent.PRODUCT_CODE = nodeEvent.PRODUCT_CODE;
+                                        tblNodeEvent.PRODUCT_NAME = nodeEvent.PRODUCT_NAME;
+                                        tblNodeEvent.TOTAL_DURATION = (decimal)(_finish - nodeEvent.START).TotalSeconds;
+
+                                        _dbContext.Entry(tblNodeEvent).State = System.Data.Entity.EntityState.Modified;
+
+                                        //_Logger.Write(_LogCategory, $"Save event {tblLineEvent.Id} for Line {line.Id}", LogType.Debug);
+                                    }
+                                }
+                            }
+
                             //LineWorking
                             foreach (MES_LINE_WORKING lineWorking in line.LineWorkings)
                             {
@@ -3295,7 +3394,7 @@ namespace iAndon.Biz.Logic
                                 }
                             }
 
-                            //LineWorking
+                            //LineSTOP
                             foreach (MES_LINE_STOP lineStop in line.LineStops)
                             {
                                 //Kiểm tra theo ID
@@ -3310,7 +3409,7 @@ namespace iAndon.Biz.Logic
                                 else
                                 {
                                     //Đang trong quá trình thực thi
-                                    tblLineStop.DURATION = tblLineStop.DURATION;
+                                    tblLineStop.DURATION = lineStop.DURATION;
 
                                     _dbContext.Entry(tblLineStop).State = System.Data.Entity.EntityState.Modified;
                                     //_Logger.Write(_LogCategory, $"Save event {tblLineEvent.Id} for Line {line.Id}", LogType.Debug);
@@ -3322,8 +3421,8 @@ namespace iAndon.Biz.Logic
 
                         }
 
-                        //_Logger.Write(_LogCategory, $"Process Data - Save Line: {line.Id}, {line.WorkPlan.Id}", LogType.Debug);
-                        //_dbContext.SaveChanges();
+                        _dbContext.SaveChanges();
+                        _Logger.Write(_LogCategory, $"Process Data - Save Line: {line.LINE_ID} completed!", LogType.Debug);
                     }
                     #region SaveWorkPlan
                     //Xử lý các kế hoạch đã quá hạn mà không được chạy
@@ -3994,6 +4093,7 @@ namespace iAndon.Biz.Logic
 
         private void ReloadReportDetail()
         {
+            _Logger.Write(_LogCategory, $"Reload Report detail to update Config", LogType.Debug);
             try
             {
                 using (Entities _dbContext = new Entities())
@@ -4038,6 +4138,7 @@ namespace iAndon.Biz.Logic
         {
             try
             {
+                _Logger.Write(_LogCategory, $"Reload Event to update Reason", LogType.Debug);
                 using (Entities _dbContext = new Entities())
                 {
                     foreach (Line line in _Lines)
@@ -4046,7 +4147,8 @@ namespace iAndon.Biz.Logic
                         {
                             if (line.WorkPlan.STATUS == (byte)PLAN_STATUS.Proccessing)
                             {
-                                List<MES_LINE_EVENT> eventRawDatas = _dbContext.MES_LINE_EVENT.Where(x=>x.WORK_PLAN_ID == line.WorkPlan.WORK_PLAN_ID).ToList();
+                                //Chỉ lấy những ông Stop
+                                List<MES_LINE_EVENT> eventRawDatas = _dbContext.MES_LINE_EVENT.Where(x=>x.WORK_PLAN_ID == line.WorkPlan.WORK_PLAN_ID && x.EVENTDEF_ID == Consts.EVENTDEF_STOP).ToList();
                                 foreach(MES_LINE_EVENT rawData in eventRawDatas)
                                 {
                                     MES_LINE_EVENT updateEvent = line.LineEvents.FirstOrDefault(x=>x.EVENT_ID == rawData.EVENT_ID);

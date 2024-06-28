@@ -19,7 +19,7 @@ namespace iAndon.MSG
             this.Header = new Header();
             this.Body = new Andon_BodyMessage();
         }
-        public Andon_MSG(string from, DateTime time, MessageType type)
+        public Andon_MSG(string from, DateTime time, MessageType type, string _deviceId, int _in1, int _in2, int _in3, int _in4, int _in5, int _in6)
         {
             this.Header = new Header()
             {
@@ -29,7 +29,13 @@ namespace iAndon.MSG
             };
             this.Body = new Andon_BodyMessage()
             {
-
+                DeviceId = _deviceId,
+                In01 = _in1,
+                In02 = _in2,
+                In03 = _in3,
+                In04 = _in4,
+                In05 = _in5,
+                In06 = _in6
             };
         }
         public string Serialize()

@@ -46,7 +46,7 @@
         "Entry"
         {
         "MsmKey" = "8:_4FC1B97B2063F233126260ED200934A7"
-        "OwnerKey" = "8:_FC491C35D1193FA968C0D61BC3CC156F"
+        "OwnerKey" = "8:_AC919576A36CE588DAC7EA739BD53D0D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -111,6 +111,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_AC919576A36CE588DAC7EA739BD53D0D"
+        "OwnerKey" = "8:_0B1DEB6516F845100CF6992B4DE58316"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_AC919576A36CE588DAC7EA739BD53D0D"
+        "OwnerKey" = "8:_C4D060628AFD463CB137997F4E06A194"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_ACD1E4364204C9FCB9A10E218960912F"
         "OwnerKey" = "8:_C4D060628AFD463CB137997F4E06A194"
         "MsmSig" = "8:_UNDEFINED"
@@ -118,7 +130,7 @@
         "Entry"
         {
         "MsmKey" = "8:_BAE69AA50CCADEBF74C160DAF8996D9D"
-        "OwnerKey" = "8:_FC491C35D1193FA968C0D61BC3CC156F"
+        "OwnerKey" = "8:_AC919576A36CE588DAC7EA739BD53D0D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -232,25 +244,7 @@
         "Entry"
         {
         "MsmKey" = "8:_FBD7A70C52E5BA4DCAB2F57516F9B58B"
-        "OwnerKey" = "8:_FC491C35D1193FA968C0D61BC3CC156F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_FC491C35D1193FA968C0D61BC3CC156F"
-        "OwnerKey" = "8:_0B1DEB6516F845100CF6992B4DE58316"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_FC491C35D1193FA968C0D61BC3CC156F"
-        "OwnerKey" = "8:_C4D060628AFD463CB137997F4E06A194"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_ACD1E4364204C9FCB9A10E218960912F"
+        "OwnerKey" = "8:_AC919576A36CE588DAC7EA739BD53D0D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -280,7 +274,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_FC491C35D1193FA968C0D61BC3CC156F"
+        "OwnerKey" = "8:_AC919576A36CE588DAC7EA739BD53D0D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -343,6 +337,12 @@
         "OwnerKey" = "8:_FBD7A70C52E5BA4DCAB2F57516F9B58B"
         "MsmSig" = "8:_UNDEFINED"
         }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_ACD1E4364204C9FCB9A10E218960912F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -383,7 +383,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:Release\\Andon.Yokowo.Biz.msi"
+        "OutputFilename" = "8:Release\\Andon.Ariston.Biz.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -711,6 +711,37 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_AC919576A36CE588DAC7EA739BD53D0D"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:iAndon.MSG, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_AC919576A36CE588DAC7EA739BD53D0D"
+                    {
+                    "Name" = "8:iAndon.MSG.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:iAndon.MSG.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_6BE5232BD07B4FACA7C98A4E09B96742"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_ACD1E4364204C9FCB9A10E218960912F"
             {
             "AssemblyRegister" = "3:1"
@@ -948,37 +979,6 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_FC491C35D1193FA968C0D61BC3CC156F"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:iAndon.Yokowo.MSG, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_FC491C35D1193FA968C0D61BC3CC156F"
-                    {
-                    "Name" = "8:iAndon.Yokowo.MSG.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:iAndon.Yokowo.MSG.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_6BE5232BD07B4FACA7C98A4E09B96742"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
         }
         "FileType"
         {
@@ -1036,7 +1036,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:iAndon.Biz"
         "ProductCode" = "8:{C10BBBED-767D-4F99-B558-69854B6257AC}"
-        "PackageCode" = "8:{0BBD6324-42F1-44C5-9FEE-34471372398A}"
+        "PackageCode" = "8:{A9C70F3E-B88C-4B8B-8F8A-5F98BBA96CC8}"
         "UpgradeCode" = "8:{142A79FB-3B92-496B-BBDB-B14EC52FC241}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
