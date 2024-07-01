@@ -38,6 +38,7 @@ namespace iAndon.Biz.Logic
         public decimal PLAN_UPH { get; set; }
         public int HEAD_COUNT { get; set; }
         public decimal PLAN_DURATION { get; set; }
+        public decimal TOTAL_PLAN_QUANTITY { get; set; }
         public decimal PLAN_QUANTITY { get; set; }
         public System.DateTime STARTED { get; set; }
         public System.DateTime FINISHED { get; set; }

@@ -49,7 +49,6 @@ namespace iAndon.Biz.Logic
         public virtual DbSet<MES_WORK_ORDER> MES_WORK_ORDER { get; set; }
         public virtual DbSet<MES_WORK_PLAN> MES_WORK_PLAN { get; set; }
         public virtual DbSet<MES_TMP_PMS_DATA> MES_TMP_PMS_DATA { get; set; }
-        public virtual DbSet<MES_REPORT_LINE_DETAIL> MES_REPORT_LINE_DETAIL { get; set; }
         public virtual DbSet<MES_WORK_PLAN_DETAIL> MES_WORK_PLAN_DETAIL { get; set; }
         public virtual DbSet<DM_MES_PRODUCT> DM_MES_PRODUCT { get; set; }
         public virtual DbSet<MES_MSG_LINE_DETAIL> MES_MSG_LINE_DETAIL { get; set; }
@@ -58,5 +57,6 @@ namespace iAndon.Biz.Logic
         public virtual DbSet<MES_LINE_STOP> MES_LINE_STOP { get; set; }
         public virtual DbSet<MES_LINE_WORKING> MES_LINE_WORKING { get; set; }
         public virtual DbSet<MES_TMP_UPDATE_CONFIG> MES_TMP_UPDATE_CONFIG { get; set; }
+        public virtual DbSet<MES_REPORT_LINE_DETAIL> MES_REPORT_LINE_DETAIL { get; set; }
     }
 }
