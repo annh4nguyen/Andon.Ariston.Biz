@@ -1139,7 +1139,7 @@ namespace iAndon.Biz.Logic
                                 _productHeadCount = _product.HEADCOUNT;
                             }
 
-                            decimal _startQuantity = linePMS.actualquantity - 1;
+                            decimal _startQuantity = linePMS.actualquantity; // - 1;
 
                             MES_WORK_PLAN_DETAIL newWorkPlanDetail = new MES_WORK_PLAN_DETAIL()
                             {
@@ -2936,7 +2936,7 @@ namespace iAndon.Biz.Logic
                         FinishReportLineDetail(line.LINE_ID, detail.REPORT_LINE_DETAIL_ID, eventTime, Consts.EVENTDEF_RUNNING);
                     }
                     _Logger.Write(_LogCategory, $"Add Detail to Run: Line {line.LINE_CODE} - WorkPlanDetail: {workPlanDetail.WORK_PLAN_DETAIL_ID} - Total: {workPlanDetail.PLAN_QUANTITY}", LogType.Debug);
-                    decimal _actualQuantity = workPlanDetail.FINISH_AT - workPlanDetail.START_AT;
+                    decimal _actualQuantity = workPlanDetail.FINISH_AT - workPlanDetail.START_AT + 1;
                     MES_REPORT_LINE_DETAIL reportLineDetail = new MES_REPORT_LINE_DETAIL()
                     {
                         REPORT_LINE_DETAIL_ID = GenID(),
@@ -4198,7 +4198,7 @@ namespace iAndon.Biz.Logic
 
         private void ReloadReportDetail()
         {
-            _Logger.Write(_LogCategory, $"Reload Report detail to update Config", LogType.Debug);
+            //_Logger.Write(_LogCategory, $"Reload Report detail to update Config", LogType.Debug);
             try
             {
                 using (Entities _dbContext = new Entities())
@@ -4209,6 +4209,7 @@ namespace iAndon.Biz.Logic
 
                     if (actualRawDatas.Count > 0)
                     {
+                        _Logger.Write(_LogCategory, $"Update Config: count {actualRawDatas.Count}", LogType.Debug);
                         foreach (MES_TMP_UPDATE_CONFIG rawData in actualRawDatas)
                         {
                             foreach (Line line in _Lines)
@@ -4221,6 +4222,7 @@ namespace iAndon.Biz.Logic
                                     {
                                         if (rawData.TAKT_TIME > 0) detail.PLAN_TAKT_TIME = rawData.TAKT_TIME;
                                         if (rawData.HEADCOUNT > 0) detail.HEAD_COUNT = (int)rawData.HEADCOUNT;
+                                        _Logger.Write(_LogCategory, $"Update Config done for {detail.REPORT_LINE_DETAIL_ID}: Headcount {detail.HEAD_COUNT}, Takttime {detail.PLAN_TAKT_TIME}", LogType.Debug);
                                     }
                                 }
                             }
