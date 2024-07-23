@@ -45,6 +45,6 @@ namespace iAndon.Biz.Logic
         public decimal QUALITY_RATE { get; set; }
         public decimal OEE { get; set; }
         public string RESULT { get; set; }
-        public byte STATUS { get; set; }
+        public int STATUS { get; set; }
     }
 }

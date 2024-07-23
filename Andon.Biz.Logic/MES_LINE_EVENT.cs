@@ -31,6 +31,7 @@ namespace iAndon.Biz.Logic
         public string REASON_ID { get; set; }
         public string RESPONSIBILITY_ID { get; set; }
         public string DESCRIPTION { get; set; }
+        public string COMMENT { get; set; }
         public string WORK_PLAN_ID { get; set; }
         public decimal DAY { get; set; }
         public string SHIFT_ID { get; set; }

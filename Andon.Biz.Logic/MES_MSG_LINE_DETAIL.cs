@@ -34,7 +34,7 @@ namespace iAndon.Biz.Logic
         public decimal QUALITY_RATE { get; set; }
         public decimal OEE { get; set; }
         public int INDEX_DETAIL { get; set; }
-        public byte STATUS { get; set; }
+        public int STATUS { get; set; }
         public string STATUS_NAME { get; set; }
         public System.DateTime TIME_UPDATED { get; set; }
     }

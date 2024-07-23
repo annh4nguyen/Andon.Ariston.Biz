@@ -47,6 +47,7 @@ namespace iAndon.Biz.Logic.Models
                 //Business
                 Nodes = new List<Node>(),
                 BreakTimes = new List<BreakTime>(),
+                TimeDatas = new List<TimeData>(),
                 WorkPlan = null,
                 LineEvents = new List<MES_LINE_EVENT>(),
                 LineWorkings = new List<MES_LINE_WORKING>(),

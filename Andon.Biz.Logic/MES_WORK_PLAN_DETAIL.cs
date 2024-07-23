@@ -25,6 +25,7 @@ namespace iAndon.Biz.Logic
         public string WORK_ORDER_PLAN_CODE { get; set; }
         public string PO_CODE { get; set; }
         public string PRODUCT_ID { get; set; }
+        public string PRODUCT_CODE { get; set; }
         public string CONFIG_ID { get; set; }
         public decimal TAKT_TIME { get; set; }
         public int STATION_QUANTITY { get; set; }
@@ -34,6 +35,6 @@ namespace iAndon.Biz.Logic
         public decimal START_AT { get; set; }
         public decimal FINISH_AT { get; set; }
         public string DESCRIPTION { get; set; }
-        public byte STATUS { get; set; }
+        public int STATUS { get; set; }
     }
 }

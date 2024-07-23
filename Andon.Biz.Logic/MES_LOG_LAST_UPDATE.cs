@@ -12,13 +12,13 @@ namespace iAndon.Biz.Logic
     using System;
     using System.Collections.Generic;
     
-    public partial class MES_WORK_PLAN
+    public partial class MES_LOG_LAST_UPDATE
     {
-        public string WORK_PLAN_ID { get; set; }
-        public string LINE_ID { get; set; }
-        public decimal DAY { get; set; }
-        public string SHIFT_ID { get; set; }
-        public int STATUS { get; set; }
-        public string WORKING_ID { get; set; }
+        public string LOG_ID { get; set; }
+        public string OBJECT_ID { get; set; }
+        public string OBJECT_TYPE { get; set; }
+        public string UPDATE_EVENT { get; set; }
+        public string USER_ID { get; set; }
+        public System.DateTime UPDATED { get; set; }
     }
 }

@@ -148,6 +148,9 @@
     <Compile Include="MES_LINE_WORKING.cs">
       <DependentUpon>Data.tt</DependentUpon>
     </Compile>
+    <Compile Include="MES_LOG_LAST_UPDATE.cs">
+      <DependentUpon>Data.tt</DependentUpon>
+    </Compile>
     <Compile Include="MES_MSG_LINE.cs">
       <DependentUpon>Data.tt</DependentUpon>
     </Compile>
